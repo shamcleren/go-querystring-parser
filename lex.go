@@ -108,9 +108,9 @@ func startState(l *queryStringLex, next rune, eof bool) (lexState, bool) {
 	}
 
 	switch next {
-	case '"':
+	case '"', '/':
 		return inPhraseState, true
-	case '+', '-', ':', '>', '<', '=', '(', ')', '[', ']':
+	case '+', '-', ':', '>', '<', '=', '(', ')', '[', ']', '{', '}', '*':
 		l.buf += string(next)
 		return singleCharOpState, true
 	}
@@ -140,9 +140,14 @@ func inPhraseState(l *queryStringLex, next rune, eof bool) (lexState, bool) {
 	}
 
 	// only a non-escaped " ends the phrase
-	if !l.inEscape && next == '"' {
+	if !l.inEscape && (next == '"' || next == '/') {
 		// end phrase
-		l.nextTokenType = tPHRASE
+		switch next {
+		case '"':
+			l.nextTokenType = tPHRASE
+		case '/':
+			l.nextTokenType = tSLASH
+		}
 		l.nextToken = &yySymType{
 			s: l.buf,
 		}
@@ -195,7 +200,16 @@ func singleCharOpState(l *queryStringLex, next rune, eof bool) (lexState, bool) 
 		logDebugTokens("LEFTBRACKET")
 	case "]":
 		l.nextTokenType = tRIGHTRANGE
-		logDebugTokens("RIGHTBRACKET")
+		logDebugTokens("tRIGHTRANGE")
+	case "{":
+		l.nextTokenType = tLEFTBRACES
+		logDebugTokens("tLEFTBRACES")
+	case "}":
+		l.nextTokenType = tRIGHTBRACES
+		logDebugTokens("tRIGHTBRACES")
+	case "*":
+		l.nextTokenType = tSTAR
+		logDebugTokens("tSTAR")
 	}
 
 	l.reset()
@@ -204,10 +218,10 @@ func singleCharOpState(l *queryStringLex, next rune, eof bool) (lexState, bool) 
 
 func inNumOrStrState(l *queryStringLex, next rune, eof bool) (lexState, bool) {
 	// only a non-escaped space ends the tilde (or eof)
-	if eof || (!l.inEscape && next == ' ' || next == ')' || next == ']') {
+	if eof || (!l.inEscape && next == ' ' || next == ':' || next == ')' || next == ']' || next == '}') {
 		// end number
 		consumed := true
-		if !eof && (next == ':' || next == ')' || next == ']') {
+		if !eof && (next == ':' || next == ')' || next == ']' || next == '}') {
 			consumed = false
 		}
 
