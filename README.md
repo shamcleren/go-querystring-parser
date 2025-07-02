@@ -1,11 +1,11 @@
 # go-querystring-parser
-A golang Elasticsearch Querystring parser
+A golang Elasticsearch Querystring parser Plugs，from：github.com/bytedance/go-querystring-parser
 
 ## Usage
 
 ```go
 import (
-    querystring "github.com/bytedance/go-querystring-parser"
+    querystring "github.com/shamcleren/go-querystring-parser"
 )
 ```
 

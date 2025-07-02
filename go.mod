@@ -1,4 +1,4 @@
-module github.com/bytedance/go-querystring-parser
+module github.com/shamcleren/go-querystring-parser
 
 go 1.12
 

@@ -214,6 +214,9 @@ func TestParser(t *testing.T) {
 				},
 			},
 		},
+		"test": {
+			q: `loglevel: ("TRACE" OR "DEBUG" OR  "INFO " OR "WARN " OR "ERROR") AND log: ("friendsvr" AND "game_app") AND __ext.io_kubernetes_pod: "nrc-dev-all-in-one-0" AND __ext.io_kubernetes_pod_namespace: "nrc-dev"`,
+		},
 	}
 
 	debugLexer = true
